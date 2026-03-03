@@ -1,31 +1,31 @@
 # Cane of Kulemak Simulator
 
-Path of Exile 1 のユニーク杖「Cane of Kulemak」で、望む veiled mod を引ける確率を計算するツール。
+A probability calculator for obtaining desired veiled mods on the unique staff "Cane of Kulemak" in Path of Exile 1.
 
-## 対応 Variant
+## Supported Variants
 
-| Variant | 構成 |
-|---------|------|
-| 1 | Prefix 2枠 + Suffix 1枠 |
-| 2 | Prefix 1枠 + Suffix 2枠 |
-| 3 | Prefix 2枠 + Suffix 2枠 |
+| Variant | Slots |
+|---------|-------|
+| 1 | Prefix x2 + Suffix x1 |
+| 2 | Prefix x1 + Suffix x2 |
+| 3 | Prefix x2 + Suffix x2 |
 
-## 前提
+## Assumptions
 
-- Prefix pool: 18種
-- Suffix pool: 17種
-- アンベール時の選択肢: 3つ
+- Prefix pool: 18 mods
+- Suffix pool: 17 mods
+- Choices shown per unveil: 3
 
-## 使い方
+## Usage
 
 ```
 python cane_calc.py
 ```
 
-Variant を選び、当たり Prefix / Suffix の数を入力すると確率と試行回数の目安を表示します。
+Select a variant, then enter the number of desired prefixes / suffixes to see the probability and estimated number of attempts.
 
 ```
-=== Cane of Kulemak 確率計算 ===
+=== Cane of Kulemak Probability Calculator ===
 Prefix pool: 18  Suffix pool: 17
 
   1: Prefix 2 + Suffix 1
@@ -34,28 +34,30 @@ Prefix pool: 18  Suffix pool: 17
 
 Variant (1/2/3): 1
 
-選択: Prefix 2 + Suffix 1
-当たりPrefixの数 (p, 2枠中): 2
-当たりSuffixの数 (s, 1枠中): 1
+Selected: Prefix 2 + Suffix 1
+Desired prefixes (p, 2 slots): 2
+Desired suffixes (s, 1 slot):  1
 
---- 結果 (Prefix 2 + Suffix 1) ---
-Prefix 2/2枠成功: 5.5363%  (1/18.1)
-Suffix 1/1枠成功: 17.6471%  (1/5.7)
-合計:            0.9770%  (1/102.4)
+--- Result (Prefix 2 + Suffix 1) ---
+Prefix 2/2 slots: 5.5363%  (1/18.1)
+Suffix 1/1 slots: 17.6471%  (1/5.7)
+Total:            0.9770%  (1/102.4)
 
---- 試行回数目安 ---
-  50%到達: 71回
-  75%到達: 141回
-  90%到達: 235回
-  99%到達: 469回
+--- Estimated attempts ---
+  50%: 71
+  75%: 141
+  90%: 235
+  99%: 469
 ```
 
-## 計算方法
+If the number of desired mods is less than the number of slots, only that many need to hit (remaining slots accept anything).
 
-各アンベールで N 個のプールから 3 つが表示され、当たり d 個のうち 1 つ以上含まれる確率:
+## How it works
+
+For each unveil, 3 mods are shown from a pool of N. The probability that at least one of d desired mods appears:
 
 ```
 P = 1 - C(N-d, 3) / C(N, 3)
 ```
 
-複数枠は、選択済み mod がプールから除外される前提で逐次計算しています。
+For multiple slots, probabilities are calculated sequentially with the chosen mod removed from the pool after each unveil.

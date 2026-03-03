@@ -1,9 +1,9 @@
-"""Cane of Kulemak 確率計算 (全Variant対応)"""
+"""Cane of Kulemak veiled mod probability calculator (all variants)"""
 from math import comb, log
 
 PREFIX_POOL = 18
 SUFFIX_POOL = 17
-SHOWN = 3
+SHOWN = 3  # choices shown per unveil
 
 VARIANTS = {
     "1": ("Prefix 2 + Suffix 1", 2, 1),
@@ -13,14 +13,14 @@ VARIANTS = {
 
 
 def prob_hit(desired, pool, shown=SHOWN):
-    """pool個の中からshown個表示されたとき、desired個の当たりが1つ以上含まれる確率"""
+    """Probability that at least one of 'desired' mods appears in 'shown' choices from 'pool'."""
     if desired <= 0 or pool < shown:
         return 0.0
     return 1 - comb(pool - desired, shown) / comb(pool, shown)
 
 
 def calc_slots(desired, pool, slots):
-    """slots回のアンベールでslots個の当たりを引く確率"""
+    """Probability of hitting a desired mod in each of 'slots' sequential unveils."""
     prob = 1.0
     for i in range(slots):
         prob *= prob_hit(desired - i, pool - i)
@@ -29,41 +29,41 @@ def calc_slots(desired, pool, slots):
 
 def fmt(prob):
     if prob <= 0:
-        return "不可能"
+        return "impossible"
     return f"{prob:.4%}  (1/{1/prob:.1f})"
 
 
 def main():
-    print("=== Cane of Kulemak 確率計算 ===")
+    print("=== Cane of Kulemak Probability Calculator ===")
     print(f"Prefix pool: {PREFIX_POOL}  Suffix pool: {SUFFIX_POOL}\n")
     for k, (name, _, _) in VARIANTS.items():
         print(f"  {k}: {name}")
     v = input("\nVariant (1/2/3): ").strip()
     if v not in VARIANTS:
-        print("無効な選択です"); return
+        print("Invalid selection"); return
     name, p_slots, s_slots = VARIANTS[v]
-    print(f"\n選択: {name}")
+    print(f"\nSelected: {name}")
 
-    p = int(input(f"当たりPrefixの数 (p, {p_slots}枠中): "))
-    s = int(input(f"当たりSuffixの数 (s, {s_slots}枠中): "))
+    p = int(input(f"Desired prefixes (p, {p_slots} slots): "))
+    s = int(input(f"Desired suffixes (s, {s_slots} slots): "))
 
-    p_need = min(p, p_slots)  # 当たりが枠より少なければ、その数だけ引ければOK
+    p_need = min(p, p_slots)  # if desired < slots, only that many need to hit
     s_need = min(s, s_slots)
 
     prefix_prob = calc_slots(p, PREFIX_POOL, p_need) if p_need > 0 else 1.0
     suffix_prob = calc_slots(s, SUFFIX_POOL, s_need) if s_need > 0 else 1.0
     total = prefix_prob * suffix_prob
 
-    print(f"\n--- 結果 ({name}) ---")
-    print(f"Prefix {p_need}/{p_slots}枠成功: {fmt(prefix_prob)}")
-    print(f"Suffix {s_need}/{s_slots}枠成功: {fmt(suffix_prob)}")
-    print(f"合計:            {fmt(total)}")
+    print(f"\n--- Result ({name}) ---")
+    print(f"Prefix {p_need}/{p_slots} slots: {fmt(prefix_prob)}")
+    print(f"Suffix {s_need}/{s_slots} slots: {fmt(suffix_prob)}")
+    print(f"Total:            {fmt(total)}")
 
     if total > 0:
-        print(f"\n--- 試行回数目安 ---")
+        print(f"\n--- Estimated attempts ---")
         for pct in [50, 75, 90, 99]:
             n = log(1 - pct / 100) / log(1 - total)
-            print(f"  {pct}%到達: {n:.0f}回")
+            print(f"  {pct}%: {n:.0f}")
 
 
 if __name__ == "__main__":
